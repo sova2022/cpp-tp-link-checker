@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+#Folders
+out/
+.vs/
+.git/
+
+#Cmake
+CMakePresets.json
+CMakeUserPresets.json
+
