@@ -4,7 +4,6 @@
 #include <QDateTime>
 #include <QString>
 
-
 namespace logger {
 
 	static void MessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {

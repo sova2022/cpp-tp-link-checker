@@ -10,6 +10,10 @@ UrlsDispenser::UrlsDispenser(QStringList urls, UrlsCount count,
 	connect(handler_.get(), &url_handler::UrlHandler::processingUrlsFinished, this, &UrlsDispenser::onFreeForProcessing);
 }
 
+url_handler::UrlHandler* UrlsDispenser::GetUrlHander() {
+	return handler_.get();
+}
+
 void UrlsDispenser::onFreeForProcessing(const QStringList& failed_to_load_urls) {
 	OnFreeForProcessing(urls_);
 	if (urls_.empty()) {

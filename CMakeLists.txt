@@ -22,7 +22,9 @@ add_executable (tp_link_checker
     src/web_page.h
     src/logger.h
     src/urls_dispenser.h
- "src/urls_dispenser.cpp" "src/web_page.cpp")
+    src/urls_dispenser.cpp
+    src/web_page.cpp
+)
 
 # TODO: Add tests and install targets if needed.
 target_link_libraries(tp_link_checker

@@ -17,6 +17,8 @@ public:
 
 	~UrlsDispenser() = default;
 
+	url_handler::UrlHandler* GetUrlHander();
+
 signals:
 	void urlsProcessed();
 

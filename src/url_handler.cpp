@@ -21,6 +21,14 @@ namespace url_handler {
         url_format_ = url_format;
     }
 
+    void UrlHandler::StopHandlingUrls() {
+        disconnect();
+        for (auto page : pages_) {
+            page->deleteLater();
+        }
+        pages_.clear();
+    }
+
     void UrlHandler::onLoadFinished(WebPage* page, const QString& url, bool ok) {
         page->StopTimeOutTimer();
         if (!ok) {

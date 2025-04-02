@@ -19,6 +19,7 @@ namespace url_handler {
         void operator()(const QString& url);
 
         void SetUrlFormat(const QString& url_format);
+        void StopHandlingUrls();
 
     signals:
         void processingUrlsFinished(const QStringList& failed_to_load_urls);

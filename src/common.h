@@ -5,7 +5,7 @@
 namespace common {
 
 	static constexpr const char* PROGRAM_NAME = "TP-Link Checker";
-	static constexpr const char* VERSION = "1.0.0";
+	static constexpr const char* VERSION = "1.0.1";
 
 	static constexpr const char* CTRL_C_DETECTED_INFO = "Ctrl+C detected. Exiting...";
 	static constexpr const char* PASSWORD = "admin";

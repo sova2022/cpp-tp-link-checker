@@ -1,5 +1,6 @@
 #include <QFile>
 
+#include <atomic>
 #include <iostream>
 #include <csignal>
 #include <windows.h>
@@ -10,14 +11,7 @@
 using namespace common;
 using namespace parser_cli;
 
-BOOL WINAPI ConsoleHandler(DWORD signal) {
-    if (signal == CTRL_C_EVENT) {
-        std::cout << CTRL_C_DETECTED_INFO << std::endl;
-        QApplication::quit();
-        return TRUE;
-    }
-    return FALSE;
-}
+static std::atomic<UrlsDispenser*> global_dispenser = nullptr;
 
 static QStringList ReadUrlsFromFile(const QString& file_path) {
     QStringList url_list;
@@ -61,15 +55,16 @@ int main(int argc, char* argv[]) {
     auto app = std::make_unique<QApplication>(argc, argv);
     app->setApplicationName(PROGRAM_NAME);
     app->setApplicationVersion(VERSION);
-    SetConsoleCtrlHandler(ConsoleHandler, TRUE);
+    
 
     QCommandLineParser parser;
     SetCliParser(parser);
     parser.process(*app);    
+    std::cout << CTRL_C_DETECTED_INFO << std::endl;
+    std::cout << "src file path:" << parser.value(option_names::SRC_FILE).toStdString() << std::endl;
+    std::cout << "dst file path:" << (parser.value(option_names::DST_FILE)).arg(
+                 "yyyy-mm-dd hh.mm.ss").toStdString() << std::endl;;
 
-    qDebug() << "src file path:" << parser.value(option_names::SRC_FILE);
-    qDebug() << "dst file path:" << (parser.value(option_names::DST_FILE)).arg("yyyy-mm-dd hh.mm.ss");
-    qDebug();
 
     QStringList valid_urls;
     auto handler = std::make_unique<url_handler::UrlHandler>(valid_urls);
@@ -81,6 +76,7 @@ int main(int argc, char* argv[]) {
 
     auto dispenser = std::make_unique<UrlsDispenser>(std::move(urls),
         parser.value(option_names::PAGES_PER_CYCLE).toInt(), std::move(handler));
+    global_dispenser.store(dispenser.get());
 
     QObject::connect(dispenser.get(), &UrlsDispenser::urlsProcessed, [&valid_urls, &parser]() {
             SaveUrlsToFile(valid_urls, parser.value(option_names::DST_FILE));
@@ -90,6 +86,29 @@ int main(int argc, char* argv[]) {
 
     // let's go
     dispenser->onFreeForProcessing(QStringList());
+
+    static auto console_handler = [](DWORD signal) -> BOOL {
+            if (signal == CTRL_C_EVENT) {
+                std::cout << CTRL_C_DETECTED_INFO << std::endl;
+                if (auto* d = global_dispenser.load()) {
+                    d->GetUrlHander()->StopHandlingUrls();
+                    emit d->urlsProcessed();
+                }
+                QApplication::quit();
+                return TRUE;
+            }
+            return FALSE;
+        };
+
+    SetConsoleCtrlHandler(console_handler, TRUE);
     return app->exec();
 }
 
+//BOOL WINAPI ConsoleHandler(DWORD signal) {
+//    if (signal == CTRL_C_EVENT) {
+//        std::cout << CTRL_C_DETECTED_INFO << std::endl;
+//        QApplication::quit();
+//        return TRUE;
+//    }
+//    return FALSE;
+//}
