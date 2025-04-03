@@ -2,19 +2,24 @@
 
 namespace url_handler {
 
-    UrlHandler::UrlHandler(QStringList& valid_urls, QObject* parent)
+    UrlHandler::UrlHandler(QStringList& valid_urls, Timings timings, QObject* parent)
         : QObject(parent)
-        , valid_urls_(valid_urls) {
+        , valid_urls_(valid_urls)
+        , timings_(timings) {
     }
 
     void UrlHandler::operator()(const QString& url) {
-        WebPage* page = new WebPage();
+        WebPage* page = new WebPage(GetLimitConnectionTimed());
         connect(page, &WebPage::loadFinished, this, [this, page, url](bool ok) {
             onLoadFinished(page, url, ok);
             });
 
         page->load(QUrl(url_format_.arg(url)));
         pages_.append(page);
+    }
+
+    int UrlHandler::GetLimitConnectionTimed() {
+        return timings_.limit_connection_timed;
     }
 
     void UrlHandler::SetUrlFormat(const QString& url_format) {
@@ -38,6 +43,7 @@ namespace url_handler {
             failed_to_load_urls_ << url;
             return;
         }
+
         page->toHtml([this, page, url](const QString& html) {
             AnalyzeHtml(page, url, html);
             });
@@ -52,18 +58,10 @@ namespace url_handler {
             else {
                 script = LOGIN_VARS.at(Key::LOGIN_ALT).arg(PASSWORD);
             }
-            page->runJavaScript(script, [this, page, url](const QVariant& result) {
-                if (result.toBool() == true) {
-                    CheckLoginAttempt(page, url);
-                }
-                else {
-                    logger::Log("Unknown version html: " + page->url().toString());
-                    RemovePage(page);
-
-                }
-                });
+            CheckLoginAttempt(page, url, script);
         }
         else {
+            logger::Log("Unknown version html: " + page->url().toString());
             RemovePage(page);
 
         }
@@ -77,19 +75,40 @@ namespace url_handler {
         page->deleteLater();
     }
 
-    void UrlHandler::CheckLoginAttempt(WebPage* page, const QString url) {
-        QTimer::singleShot(10000, this, [this, page, url]() {
-            page->toHtml([this, page, url](const QString& html) {
-                if (html.contains("Logout")) {
-                    valid_urls_.append(url);
-                    logger::Log("Log In Success: " + url);
-                }
-                else {
+    void UrlHandler::CheckLoginAttempt(WebPage* page, const QString& url, const QString& script) {
+        
+        QTimer* timer = new QTimer(this);
+        timer->setSingleShot(true);
+
+        connect(timer, &QTimer::timeout, this, [this, page, url, timer]() {
+            timer->deleteLater();
+            page->runJavaScript(JS_CODE_CHECK_USER_CONFLICT_SITUATION, [this, page, url](const QVariant& result) {
+                QString errorMsg = result.toString();
+                if (errorMsg.isEmpty()) {
                     logger::Log("Wrong password: " + url);
                 }
+                else {
+                    logger::Log("Log In failure: " + url + " " + result.toString());
+                    valid_urls_.append(url + " " + result.toString());
+                }
                 RemovePage(page);
-                });
+                });            
+            
             });
+
+        timer->start(timings_.timing_login_attempt);
+
+        connect(page, &QWebEnginePage::urlChanged, this, [this, page, url, timer](const QUrl& new_url) {
+            timer->stop();
+            timer->deleteLater();
+            if (new_url.toString().contains("index")) {
+                valid_urls_.append(url);
+                logger::Log("Log In Success: " + url);
+            }
+            RemovePage(page);
+            });
+
+        page->runJavaScript(script);
     }
 
 } // namespace url_handler

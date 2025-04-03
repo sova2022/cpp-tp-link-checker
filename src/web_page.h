@@ -2,7 +2,7 @@
 
 #include <QApplication>
 #include <QTimer>
-#include <QWebEngineView>
+#include <QWebEnginePage>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QWebEngineCertificateError>
@@ -10,7 +10,7 @@
 class WebPage : public QWebEnginePage {
     Q_OBJECT
 public:
-    explicit WebPage(QObject* parent = nullptr);
+    explicit WebPage(int limit_connection_timed, QObject* parent = nullptr);
 
     ~WebPage() override;
 
@@ -29,4 +29,5 @@ private slots:
 
 private:
     QTimer load_timer_ = QTimer(this);
+    int limit_connection_timed_;
 };

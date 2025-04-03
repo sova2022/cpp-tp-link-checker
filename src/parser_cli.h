@@ -8,8 +8,9 @@ namespace parser_cli {
 
         static constexpr const char* SRC_FILE = "input";
         static constexpr const char* DST_FILE = "output";
-        static constexpr const char* SAVE_HTML = "save_html";
-        static constexpr const char* PAGES_PER_CYCLE = "pages_per_cycle";
+        static constexpr const char* PAGES_PER_CYCLE = "pages-per-cycle";
+        static constexpr const char* LIMIT_CONNECTION_TIMED = "limit-connection-timed";
+        static constexpr const char* TIMING_FOR_LOGIN_ATTEMPT = "timing-login-attempt";
 
     } // namespace parser_cli::option_names
 
@@ -29,11 +30,21 @@ namespace parser_cli {
 
         QCommandLineOption pages_per_cycle(QStringList() << "p" << PAGES_PER_CYCLE,
             "Count of processing pages per one cycle",
-            "number", "10");
+            "numbers", "10");
+
+        QCommandLineOption limit_connection_timed(QStringList() << "l" << LIMIT_CONNECTION_TIMED,
+            "Limit connection timed for atempt",
+            "seconds", "30");
+
+        QCommandLineOption timing_login_attempt(QStringList() << "t" << TIMING_FOR_LOGIN_ATTEMPT,
+            "Timings for login attempt",
+            "seconds", "10");
 
         parser.addOption(input_file);
         parser.addOption(output_file);
         parser.addOption(pages_per_cycle);
+        parser.addOption(limit_connection_timed);
+        parser.addOption(timing_login_attempt);
     }
 
 } // namespace parser_cli

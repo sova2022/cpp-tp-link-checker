@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QObject>
-
 #include <memory>
 
 #include "url_handler.h"

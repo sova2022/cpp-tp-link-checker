@@ -15,8 +15,24 @@ namespace common {
         static constexpr const char* LOGIN_ALT = "login_alt";
     };
 
+    struct Timings {
+        Timings(int limit_conn_t, int timing_log_attempt)
+            : limit_connection_timed(limit_conn_t)
+            , timing_login_attempt(timing_log_attempt) {}
+
+        int limit_connection_timed;
+        int timing_login_attempt;
+    };
+
     const QString ALT_URL_FORMAT = "https://%1/webpages/login.html";
     const QString DEFAULT_URL_FORMAT = "https://%1";
+
+    const QString JS_CODE_CHECK_USER_CONFLICT_SITUATION(R"(
+    (function() {
+        let errorElement = document.getElementById("user-conflict-situation");
+        return errorElement ? errorElement.innerText.trim() : "";
+    })();
+)");
 
     const QString JS_CODE_LOGIN(R"(
     (function() {
@@ -33,9 +49,9 @@ namespace common {
     )");
 
     const QString JS_CODE_LOGIN_ALT(R"(
-    (function() {
+    (async function() {
         let passwordFields = document.getElementsByClassName("text-text password-text");
-        if (passwordFields.length > 5) {
+        if (passwordFields.length > 4) {
             let passwordField = passwordFields[4];
             passwordField.focus();
             let password = "%1";
@@ -43,18 +59,22 @@ namespace common {
                 let event = new InputEvent("input", { bubbles: true });
                 passwordField.value += char;
                 passwordField.dispatchEvent(event);
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
+
             let changeEvent = new Event("change", { bubbles: true });
             let blurEvent = new Event("blur", { bubbles: true });
             passwordField.dispatchEvent(changeEvent);
             passwordField.dispatchEvent(blurEvent);
+
+            await new Promise(resolve => setTimeout(resolve, 500));
             document.getElementById("login-btn").focus();
+
+            await new Promise(resolve => setTimeout(resolve, 500));
             document.getElementById("login-btn").click();
-            return true;
-        } else {
-            return false;
         }
     })();
+
     )");
 
     const std::map<const char*, const QString> LOGIN_VARS{

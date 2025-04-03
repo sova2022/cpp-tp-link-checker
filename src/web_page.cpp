@@ -1,7 +1,8 @@
 #include "web_page.h"
 
-WebPage::WebPage(QObject* parent)
-    : QWebEnginePage(parent) {
+WebPage::WebPage(int limit_connection_timed, QObject* parent)
+    : QWebEnginePage(parent)
+    , limit_connection_timed_(limit_connection_timed) {
     connect(this, &QWebEnginePage::certificateError, this, &WebPage::onCertificateError);
     connect(this, &QWebEnginePage::loadStarted, this, &WebPage::onLoadStarted);
     connect(&load_timer_, &QTimer::timeout, this, &WebPage::onTimeout);
@@ -32,7 +33,7 @@ void WebPage::onCertificateError(const QWebEngineCertificateError& error) {
 }
 
 void WebPage::onLoadStarted() {
-    load_timer_.start(30000);
+    load_timer_.start(limit_connection_timed_);
 }
 
 void WebPage::onTimeout() {

@@ -39,7 +39,7 @@ static void SaveUrlsToFile(const QStringList& valid_urls, const QString& file_pa
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
         for (const QString& url : valid_urls) {
-            out << url << "\n";
+            out << url << Qt::endl;
         }
         file.close();
     }
@@ -60,14 +60,17 @@ int main(int argc, char* argv[]) {
     QCommandLineParser parser;
     SetCliParser(parser);
     parser.process(*app);    
-    std::cout << CTRL_C_DETECTED_INFO << std::endl;
-    std::cout << "src file path:" << parser.value(option_names::SRC_FILE).toStdString() << std::endl;
-    std::cout << "dst file path:" << (parser.value(option_names::DST_FILE)).arg(
+    std::cout << "src file path: " << parser.value(option_names::SRC_FILE).toStdString() << std::endl;
+    std::cout << "dst file path: " << (parser.value(option_names::DST_FILE)).arg(
                  "yyyy-mm-dd hh.mm.ss").toStdString() << std::endl;;
 
 
+    Timings timings(
+        parser.value(option_names::LIMIT_CONNECTION_TIMED).toInt() * 1000,  // convert to milliseconds
+        parser.value(option_names::TIMING_FOR_LOGIN_ATTEMPT).toInt() * 1000 // convert to milliseconds
+    );
     QStringList valid_urls;
-    auto handler = std::make_unique<url_handler::UrlHandler>(valid_urls);
+    auto handler = std::make_unique<url_handler::UrlHandler>(valid_urls, timings);
     handler->SetUrlFormat(ALT_URL_FORMAT);
 
     logger::Log("Started reading from input file");
@@ -86,29 +89,19 @@ int main(int argc, char* argv[]) {
 
     // let's go
     dispenser->onFreeForProcessing(QStringList());
-
+    
     static auto console_handler = [](DWORD signal) -> BOOL {
-            if (signal == CTRL_C_EVENT) {
-                std::cout << CTRL_C_DETECTED_INFO << std::endl;
-                if (auto* d = global_dispenser.load()) {
-                    d->GetUrlHander()->StopHandlingUrls();
-                    emit d->urlsProcessed();
-                }
-                QApplication::quit();
-                return TRUE;
+        if (signal == CTRL_C_EVENT) {
+            std::cout << CTRL_C_DETECTED_INFO << std::endl;
+            if (auto* d = global_dispenser.load()) {
+                d->GetUrlHander()->StopHandlingUrls();
+                emit d->urlsProcessed();
             }
-            return FALSE;
+            QApplication::quit();
+            return TRUE;
+        }
+        return FALSE;
         };
-
     SetConsoleCtrlHandler(console_handler, TRUE);
     return app->exec();
 }
-
-//BOOL WINAPI ConsoleHandler(DWORD signal) {
-//    if (signal == CTRL_C_EVENT) {
-//        std::cout << CTRL_C_DETECTED_INFO << std::endl;
-//        QApplication::quit();
-//        return TRUE;
-//    }
-//    return FALSE;
-//}

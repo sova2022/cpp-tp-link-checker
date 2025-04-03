@@ -12,12 +12,13 @@ namespace url_handler {
     class UrlHandler : public QObject {
         Q_OBJECT
     public:
-        UrlHandler(QStringList& valid_urls, QObject* parent = nullptr);
+        UrlHandler(QStringList& valid_urls, Timings timings, QObject* parent = nullptr);
 
         ~UrlHandler() = default;
 
         void operator()(const QString& url);
 
+        int GetLimitConnectionTimed();
         void SetUrlFormat(const QString& url_format);
         void StopHandlingUrls();
 
@@ -31,12 +32,12 @@ namespace url_handler {
         QString url_format_;
         QStringList& valid_urls_;
         QVector<WebPage*> pages_;
-        QWebEngineView view_;
         QStringList failed_to_load_urls_;
+        Timings timings_;
 
         void AnalyzeHtml(WebPage* page, const QString& url, const QString& html);
         void RemovePage(WebPage* page);
-        void CheckLoginAttempt(WebPage* page, const QString url);
+        void CheckLoginAttempt(WebPage* page, const QString& url, const QString& script);        
     };
 
 } // namespace url_handler
