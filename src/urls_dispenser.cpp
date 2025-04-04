@@ -26,7 +26,7 @@ void UrlsDispenser::onFreeForProcessing(const QStringList& failed_to_load_urls) 
 		OnFreeForProcessing(failed_to_load_urls_);
 		if (failed_to_load_urls_.empty()) {
 			disconnect(handler_.get(), &url_handler::UrlHandler::processingUrlsFinished, this, &UrlsDispenser::onFreeForProcessing);
-			QTimer::singleShot(handler_->GetLimitConnectionTimed(), this, [this]() {
+			QTimer::singleShot(handler_->GetLimitConnectionTimed() + common::TIME_OFSET_10_SEC, this, [this]() {
 				logger::Log("All URLs has been processed");
 				emit urlsProcessed();
 				qDebug() << "Press Ctrl+C for exit";

@@ -21,19 +21,19 @@ namespace parser_cli {
         parser.addVersionOption();
 
         QCommandLineOption input_file(QStringList() << "i" << SRC_FILE,
-            "Path to file with IP addresses",
+            "Path to file with IPs",
             "Text Document", "data/input.txt");
 
         QCommandLineOption output_file(QStringList() << "o" << DST_FILE,
-            "Path to file for saving valid IP addresses",
+            "Path to file for saving valid IPs",
             "Text Document", "output/output_%1.txt");
 
         QCommandLineOption pages_per_cycle(QStringList() << "p" << PAGES_PER_CYCLE,
-            "Count of processing pages per one cycle",
+            "Num of processing pages per cycle",
             "numbers", "10");
 
         QCommandLineOption limit_connection_timed(QStringList() << "l" << LIMIT_CONNECTION_TIMED,
-            "Limit connection timed for atempt",
+            "Limit connection timed for attempt",
             "seconds", "30");
 
         QCommandLineOption timing_login_attempt(QStringList() << "t" << TIMING_FOR_LOGIN_ATTEMPT,

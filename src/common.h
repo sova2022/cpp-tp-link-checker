@@ -5,7 +5,7 @@
 namespace common {
 
 	static constexpr const char* PROGRAM_NAME = "TP-Link Checker";
-	static constexpr const char* VERSION = "1.0.1";
+	static constexpr const char* VERSION = "1.0.3";
 
 	static constexpr const char* CTRL_C_DETECTED_INFO = "Ctrl+C detected. Exiting...";
 	static constexpr const char* PASSWORD = "admin";
@@ -14,6 +14,8 @@ namespace common {
         static constexpr const char* LOGIN = "login";
         static constexpr const char* LOGIN_ALT = "login_alt";
     };
+
+    static const int TIME_OFSET_10_SEC = 10000;
 
     struct Timings {
         Timings(int limit_conn_t, int timing_log_attempt)

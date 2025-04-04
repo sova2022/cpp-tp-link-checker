@@ -54,16 +54,14 @@ int main(int argc, char* argv[]) {
 
     auto app = std::make_unique<QApplication>(argc, argv);
     app->setApplicationName(PROGRAM_NAME);
-    app->setApplicationVersion(VERSION);
-    
+    app->setApplicationVersion(VERSION);    
 
     QCommandLineParser parser;
     SetCliParser(parser);
     parser.process(*app);    
     std::cout << "src file path: " << parser.value(option_names::SRC_FILE).toStdString() << std::endl;
     std::cout << "dst file path: " << (parser.value(option_names::DST_FILE)).arg(
-                 "yyyy-mm-dd hh.mm.ss").toStdString() << std::endl;;
-
+                 "yyyy-mm-dd hh.mm.ss").toStdString() << std::endl;
 
     Timings timings(
         parser.value(option_names::LIMIT_CONNECTION_TIMED).toInt() * 1000,  // convert to milliseconds
