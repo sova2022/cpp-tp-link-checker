@@ -21,7 +21,11 @@ void UrlsDispenser::onFreeForProcessing(const QStringList& failed_to_load_urls) 
 			failed_to_load_urls_ = failed_to_load_urls;
 			handler_->SetUrlFormat(common::DEFAULT_URL_FORMAT);
 			failed_urls_handle_mode_ = true;
-			logger::Log("Switching to failed URLs handling mode");
+			QTimer::singleShot(handler_->GetLimitConnectionTimed() + common::TIME_OFSET_10_SEC, [this]() {				
+				logger::Log("Switching to failed URLs handling mode");
+				OnFreeForProcessing(failed_to_load_urls_);
+				});
+			return;
 		}
 		OnFreeForProcessing(failed_to_load_urls_);
 		if (failed_to_load_urls_.empty()) {

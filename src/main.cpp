@@ -74,6 +74,9 @@ int main(int argc, char* argv[]) {
     logger::Log("Started reading from input file");
 
     QStringList urls = ReadUrlsFromFile(parser.value(option_names::SRC_FILE));
+    if (urls.empty()) {
+        return 0;
+    }
 
     auto dispenser = std::make_unique<UrlsDispenser>(std::move(urls),
         parser.value(option_names::PAGES_PER_CYCLE).toInt(), std::move(handler));

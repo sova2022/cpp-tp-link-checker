@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QTimer>
+
 #include <memory>
 
 #include "url_handler.h"

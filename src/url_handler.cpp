@@ -32,7 +32,7 @@ namespace url_handler {
             page->deleteLater();
         }
         pages_.clear();
-    }
+    }    
 
     void UrlHandler::onLoadFinished(WebPage* page, const QString& url, bool ok) {
         page->StopTimeOutTimer();
@@ -76,7 +76,6 @@ namespace url_handler {
     }
 
     void UrlHandler::CheckLoginAttempt(WebPage* page, const QString& url, const QString& script) {
-        
         QTimer* timer = new QTimer(this);
         timer->setSingleShot(true);
 
